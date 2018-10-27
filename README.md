@@ -15,9 +15,9 @@ cd go-geolocator
 
 ## Licenses
 
-### `go-geolocator`
+### go-geolocator
 
-See the [LICENSE](license) file.
+See the [LICENSE](LICENSE) file.
 
 ### GeoLite2
 
@@ -28,7 +28,7 @@ This product includes GeoLite2 data created by MaxMind, available from
 <a href="http://www.maxmind.com">http://www.maxmind.com</a>.
 ```
 
-### `geoip2-golang`
+### geoip2-golang
 
 ```
 ISC License
