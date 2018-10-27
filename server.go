@@ -30,7 +30,7 @@ type LocationSummaryResponse struct {
 	City      string `json:"geolocation"`
 }
 
-func geolocate(ipAddress string) *geoip2.City {
+func geolocate(ipAddress string) geoip2.City {
 	db, err := geoip2.Open(os.Getenv("CITY_MMDB_PATH"))
 	if err != nil {
 		panic(fmt.Sprintf("Unable to open geoIP2 database: %s", err))
@@ -42,7 +42,7 @@ func geolocate(ipAddress string) *geoip2.City {
 	if err != nil {
 		panic(fmt.Sprintf("Unable to lookup city: %s", err))
 	}
-	return record
+	return *record
 }
 
 func geolocateSummary(ipAddress string) string {
@@ -80,7 +80,7 @@ func handleIdentifierLookup(c echo.Context) error {
 	}
 	return c.JSONPretty(http.StatusOK, &LocationResponse{
 		ID:        id,
-		City:      *geolocate(id),
+		City:      geolocate(id),
 		RequestID: reqID,
 		Copyright: "This product includes GeoLite2 data created by MaxMind, available from http://www.maxmind.com",
 	}, "  ")
