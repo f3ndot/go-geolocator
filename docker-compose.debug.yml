@@ -1,0 +1,10 @@
+version: '2.1'
+
+services:
+  go-geolocator:
+    image: go-geolocator
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+        - 1323:1323

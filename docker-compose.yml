@@ -1,0 +1,8 @@
+version: '2.1'
+
+services:
+  go-geolocator:
+    image: go-geolocator
+    build: .
+    ports:
+      - 1323:1323

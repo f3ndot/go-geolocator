@@ -1,11 +1,13 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
@@ -36,9 +38,9 @@ func geolocate(ipAddress string) geoip2.City {
 		panic(fmt.Sprintf("Unable to open geoIP2 database: %s", err))
 	}
 	defer db.Close()
-	ip := net.ParseIP(ipAddress)
+	pp := net.ParseIP(ipAddress)
 
-	record, err := db.City(ip)
+	record, err := db.City(pp)
 	if err != nil {
 		panic(fmt.Sprintf("Unable to lookup city: %s", err))
 	}
@@ -51,7 +53,7 @@ func geolocateSummary(ipAddress string) string {
 		panic(fmt.Sprintf("Unable to open geoIP2 database: %s", err))
 	}
 	defer db.Close()
-	ip := net.ParseIP(ipAddress)
+	pp := net.ParseIP(ipAddress)
 
 	var record struct {
 		Country struct {
@@ -59,7 +61,7 @@ func geolocateSummary(ipAddress string) string {
 		} `maxminddb:"country"`
 	}
 
-	err = db.Lookup(ip, &record)
+	err = db.Lookup(pp, &record)
 	if err != nil {
 		panic(fmt.Sprintf("Unable to lookup: %s", err))
 	}
@@ -111,6 +113,17 @@ func validateEnvVars() {
 func main() {
 	loadEnv()
 	validateEnvVars()
+	var portStr, isPortStrSet = os.LookupEnv("PORT")
+	if !isPortStrSet {
+		portStr = "1323"
+	}
+	var pp = flag.String("port", portStr, "The TCP port the server should listen on")
+	flag.Parse()
+	portInt, err := strconv.Atoi(*pp)
+	if err != nil || portInt < 1 || portInt > 65535 {
+		log.Fatal("Invalid --port number ", *pp)
+	}
+	log.Println("Configured for --port number", *pp)
 
 	e := echo.New()
 	e.Use(middleware.Recover())
@@ -118,5 +131,5 @@ func main() {
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Logger())
 	e.GET("/api/location/:id", handleIdentifierLookup)
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":" + *pp))
 }
